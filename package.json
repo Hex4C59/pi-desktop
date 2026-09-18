@@ -1,0 +1,13 @@
+{
+  "name": "pi-desktop",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Linux desktop client for pi (documentation tooling only until the application scaffold lands).",
+  "scripts": {
+    "docs:i18n:check": "node scripts/docs-i18n-check.mjs",
+    "docs:verify": "node scripts/docs-verify.mjs",
+    "test:docs-i18n": "node --test scripts/docs-i18n-check.test.mjs",
+    "test:docs-verify": "node --test scripts/docs-verify.test.mjs"
+  }
+}

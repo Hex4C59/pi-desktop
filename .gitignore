@@ -1,0 +1,5 @@
+# Local editor config (not part of pi-desktop product sources)
+.cursor/
+
+# Dependencies and build artifacts (when application scaffold exists)
+node_modules/

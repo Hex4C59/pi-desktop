@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "pi-desktop 高层系统架构（提案）",
+    "subtitle": "文档设计状态 · 尚无应用源码实现 · Electron + pi SDK 首版边界",
+    "locale": "zh-CN",
+    "output": "pi-desktop-architecture.html",
+    "visual_preset": "blueprint",
+    "quality_profile": "showcase",
+    "viewBox": [1200, 900],
+    "views": [
+      {
+        "id": "prompt-stream",
+        "label": "Prompt 与流式响应",
+        "focus": ["renderer", "preload", "ipc-router", "agent-service", "runtime-controller", "pi-adapter", "pi-runtime", "provider", "event-adapter", "event-publisher"],
+        "note": "从用户输入沿受控命令链到模型，再由领域事件链回到界面。"
+      },
+      {
+        "id": "security-boundaries",
+        "label": "权限与凭据边界",
+        "focus": ["renderer", "preload", "ipc-router", "credential-coordinator", "credential-store", "provider"],
+        "note": "Renderer 不获得 Node.js、文件、shell 或已保存凭据；凭据仅停留在宿主与 pi 存储侧。"
+      },
+      {
+        "id": "runtime-ownership",
+        "label": "Runtime 所有权",
+        "focus": ["agent-service", "runtime-controller", "pi-adapter", "pi-runtime", "event-adapter", "event-publisher"],
+        "note": "RuntimeController 是活动 runtime 与 generation 的唯一 owner；EventPublisher 拥有 sequence。"
+      }
+    ],
+    "legend": {
+      "mode": "all",
+      "entries": {
+        "frontend": { "label": "界面与桥接" },
+        "backend": { "label": "宿主应用与适配器" },
+        "database": { "label": "本地持久化" },
+        "security": { "label": "安全敏感能力" },
+        "external": { "label": "外部系统" }
+      }
+    }
+  },
+  "components": [
+    {
+      "id": "renderer",
+      "type": "frontend",
+      "label": "Renderer / React UI",
+      "sublabel": "用户输入、对话与流式状态",
+      "tag": "规划中 · 无 Node.js",
+      "pos": [50, 350],
+      "size": [140, 82]
+    },
+    {
+      "id": "preload",
+      "type": "frontend",
+      "label": "Preload Bridge",
+      "sublabel": "固定窄接口与事件缓冲",
+      "tag": "规划中 · contextBridge",
+      "pos": [215, 350],
+      "size": [140, 82]
+    },
+    {
+      "id": "ipc-router",
+      "type": "security",
+      "label": "IPC Router",
+      "sublabel": "allowlist、schema、错误脱敏",
+      "tag": "规划中 · 信任边界",
+      "pos": [380, 350],
+      "size": [140, 82]
+    },
+    {
+      "id": "agent-service",
+      "type": "backend",
+      "label": "应用服务",
+      "sublabel": "工作区、会话与命令编排",
+      "tag": "规划中 · 用例编排",
+      "pos": [545, 350],
+      "size": [140, 82]
+    },
+    {
+      "id": "runtime-controller",
+      "type": "backend",
+      "label": "RuntimeController",
+      "sublabel": "runtime 与 generation",
+      "tag": "规划中 · 唯一 owner",
+      "pos": [710, 350],
+      "size": [140, 82]
+    },
+    {
+      "id": "pi-adapter",
+      "type": "backend",
+      "label": "Pi Runtime Adapter",
+      "sublabel": "项目 port → pi SDK",
+      "tag": "规划中 · SDK 隔离",
+      "pos": [875, 350],
+      "size": [140, 82]
+    },
+    {
+      "id": "pi-runtime",
+      "type": "backend",
+      "label": "Pi Runtime",
+      "sublabel": "会话、工具与模型运行时",
+      "tag": "上游 SDK · 计划集成",
+      "pos": [1040, 350],
+      "size": [140, 82]
+    },
+    {
+      "id": "provider",
+      "type": "external",
+      "label": "外部 Model Provider",
+      "sublabel": "模型请求与流式响应",
+      "tag": "外部依赖",
+      "pos": [1040, 610],
+      "size": [140, 82]
+    },
+    {
+      "id": "event-adapter",
+      "type": "backend",
+      "label": "Pi Event Adapter",
+      "sublabel": "SDK 事件 → 领域事件",
+      "tag": "规划中 · contentIndex / tool ID",
+      "pos": [875, 610],
+      "size": [140, 82]
+    },
+    {
+      "id": "event-publisher",
+      "type": "messagebus",
+      "label": "EventPublisher",
+      "sublabel": "代次与事件序列",
+      "tag": "规划中 · sequence owner",
+      "pos": [710, 610],
+      "size": [140, 82]
+    },
+    {
+      "id": "credential-coordinator",
+      "type": "security",
+      "label": "Credential Coordinator",
+      "sublabel": "提交、OAuth 与注销",
+      "tag": "规划中 · Main only",
+      "pos": [710, 100],
+      "size": [140, 82]
+    },
+    {
+      "id": "credential-store",
+      "type": "database",
+      "label": "pi 凭据存储",
+      "sublabel": "~/.pi/agent · 不回传界面",
+      "tag": "由 pi SDK 管理",
+      "pos": [875, 100],
+      "size": [140, 82]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Electron Renderer Process · 沙箱化呈现层",
+      "wraps": ["renderer", "preload"],
+      "pad": 30
+    },
+    {
+      "kind": "region",
+      "label": "Electron Main Process / Desktop Host · 高权限宿主（提案）",
+      "wraps": ["ipc-router", "agent-service", "runtime-controller", "pi-adapter", "event-adapter", "event-publisher", "credential-coordinator"],
+      "pad": 34
+    },
+    {
+      "kind": "security-group",
+      "label": "凭据边界 · secret 不进入 Renderer、普通日志或前端持久化",
+      "wraps": ["credential-coordinator", "credential-store"],
+      "pad": 24
+    }
+  ],
+  "connections": [
+    {
+      "id": "submit-prompt",
+      "from": "renderer",
+      "to": "preload",
+      "variant": "emphasis"
+    },
+    {
+      "id": "typed-ipc",
+      "from": "preload",
+      "to": "ipc-router",
+      "label": "类型化 IPC",
+      "variant": "security",
+      "labelAt": [367, 320]
+    },
+    {
+      "id": "dispatch-command",
+      "from": "ipc-router",
+      "to": "agent-service",
+      "variant": "emphasis"
+    },
+    {
+      "id": "controlled-scope",
+      "from": "agent-service",
+      "to": "runtime-controller",
+      "variant": "emphasis"
+    },
+    {
+      "id": "runtime-port",
+      "from": "runtime-controller",
+      "to": "pi-adapter",
+      "variant": "emphasis"
+    },
+    {
+      "id": "sdk-command",
+      "from": "pi-adapter",
+      "to": "pi-runtime",
+      "variant": "emphasis"
+    },
+    {
+      "id": "model-request",
+      "from": "pi-runtime",
+      "to": "provider",
+      "label": "模型请求",
+      "variant": "emphasis",
+      "labelAt": [1160, 520]
+    },
+    {
+      "id": "provider-stream",
+      "from": "provider",
+      "to": "event-adapter",
+      "variant": "emphasis"
+    },
+    {
+      "id": "domain-event",
+      "from": "event-adapter",
+      "to": "event-publisher",
+      "variant": "emphasis"
+    },
+    {
+      "id": "publish-event",
+      "from": "event-publisher",
+      "to": "preload",
+      "label": "DesktopEventEnvelope",
+      "variant": "emphasis",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "via": [[780, 500], [285, 500]],
+      "labelAt": [530, 485]
+    },
+    {
+      "id": "render-stream",
+      "from": "preload",
+      "to": "renderer",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "bottom",
+      "via": [[285, 760], [120, 760]]
+    },
+    {
+      "id": "credential-command",
+      "from": "ipc-router",
+      "to": "credential-coordinator",
+      "label": "一次性 credential command",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "via": [[450, 260], [780, 260]],
+      "labelAt": [615, 245]
+    },
+    {
+      "id": "credential-persist",
+      "from": "credential-coordinator",
+      "to": "credential-store",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "当前事实",
+      "items": [
+        "仓库当前只有架构文档，没有 src 应用源码或 package.json",
+        "Electron 已选定；图中应用模块均为首版提案，不表示已实现",
+        "五项架构决策仍标记为待决定"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "主路径契约",
+      "items": [
+        "prompt 预检后尽快返回，长任务进度通过领域事件推送",
+        "contentIndex 与 tool call ID 关联增量；message_end.message 是完成值",
+        "session replacement 后重绑订阅，旧 generation 事件被丢弃"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "安全边界",
+      "items": [
+        "Renderer 不获得 shell、任意文件、Node.js、pi SDK 或已保存凭据",
+        "IPC 只暴露固定 allowlist，并在 Main 侧对 unknown 输入做 schema 校验",
+        "项目信任不是 OS 沙箱；外部输出与链接均按不可信数据处理"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "所有权与持久化",
+      "items": [
+        "RuntimeController 拥有活动 runtime 和 generation；EventPublisher 拥有 sequence",
+        "session、认证、settings、resources 与 trust store 由 pi SDK 管理",
+        "Electron userData 仅保存窗口状态和非敏感 UI 偏好"
+      ]
+    }
+  ]
+}

@@ -26,7 +26,7 @@ Gate status (Open / In spike / Accepted) is authoritative in [architecture-gates
 
 | ID | Title | Gate(s) closed | File |
 |----|--------|----------------|------|
-| — | *(none yet)* | — | — |
+| 0001 | Build and packaging baseline | `gate-build-baseline` | [0001-build-baseline.md](0001-build-baseline.md) |
 
 ## Pending ADR
 
@@ -42,7 +42,6 @@ Planned numbering hints only—**do not create Accepted ADR files until the main
 
 | Planned ID | Gate | ACTIVE | When to create the file |
 |------------|------|--------|-------------------------|
-| `0001-build-baseline` | `gate-build-baseline` | WI-001 | After WI-001 spike passes acceptance and maintainer confirms baseline (e.g. Forge + Vite option A) |
 | `0002-runtime-host` | `gate-runtime-host` | WI-003 (queued) | After runtime-host spike and maintainer confirmation |
 | *(TBD)* | `gate-sub-agent`, `gate-project-trust-worktree`, `gate-task-persistence`, `gate-apply-journal`, `gate-attachments` | — | Each closes only with its own Accepted ADR |
 

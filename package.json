@@ -1,13 +1,61 @@
 {
   "name": "pi-desktop",
+  "productName": "pi Desktop",
+  "version": "0.0.0",
   "private": true,
   "license": "MIT",
-  "type": "module",
-  "description": "Linux desktop client for pi (documentation tooling only until the application scaffold lands).",
+  "description": "Linux desktop client for pi",
+  "main": ".vite/build/main.js",
+  "engines": {
+    "node": ">=22.19.0"
+  },
   "scripts": {
+    "dev": "electron-forge start",
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "lint": "eslint --ext .ts,.tsx .",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"*.{ts,html,json,mts}\" forge.config.ts vite.*.config.ts vite.*.config.mts",
+    "format:check": "prettier --ignore-unknown --check \"src/**/*.{ts,tsx,css}\" \"*.{ts,html,json,mts}\" forge.config.ts vite.*.config.ts vite.*.config.mts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "check": "npm run format:check && npm run lint && npm run typecheck",
+    "test": "npm run test:unit && npm run test:docs-i18n && npm run test:docs-verify",
+    "test:unit": "tsx --test src/main/platform/node-version.test.ts",
     "docs:i18n:check": "node scripts/docs-i18n-check.mjs",
     "docs:verify": "node scripts/docs-verify.mjs",
     "test:docs-i18n": "node --test scripts/docs-i18n-check.test.mjs",
     "test:docs-verify": "node --test scripts/docs-verify.test.mjs"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "0.85.1",
+    "electron-squirrel-startup": "1.0.1",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "7.11.2",
+    "@electron-forge/maker-deb": "7.11.2",
+    "@electron-forge/maker-rpm": "7.11.2",
+    "@electron-forge/maker-squirrel": "7.11.2",
+    "@electron-forge/maker-zip": "7.11.2",
+    "@electron-forge/plugin-auto-unpack-natives": "7.11.2",
+    "@electron-forge/plugin-fuses": "7.11.2",
+    "@electron-forge/plugin-vite": "7.11.2",
+    "@electron/fuses": "1.8.0",
+    "@types/electron-squirrel-startup": "1.0.2",
+    "@types/react": "19.1.13",
+    "@types/react-dom": "19.1.9",
+    "@typescript-eslint/eslint-plugin": "8.44.0",
+    "@typescript-eslint/parser": "8.44.0",
+    "@vitejs/plugin-react": "5.0.3",
+    "electron": "44.4.3",
+    "eslint": "8.57.1",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-import": "2.32.0",
+    "eslint-plugin-react": "7.37.5",
+    "prettier": "3.6.2",
+    "tsx": "^4.20.5",
+    "typescript": "5.9.2",
+    "vite": "5.4.20"
   }
 }

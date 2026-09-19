@@ -34,7 +34,7 @@ Each gate must reach **Accepted** (linked Accepted ADR) before docs or UI descri
 
 | ID | Topic | Status | ADR | ACTIVE | Next action |
 |----|--------|--------|-----|--------|-------------|
-| `gate-build-baseline` | npm + Electron Forge/Vite and first Linux packaging evaluation | `In spike` | — | [WI-001](../../ACTIVE.md) | Maintainer confirms spike → draft `0001-build-baseline.md` → set `Accepted` here |
+| `gate-build-baseline` | npm + Electron Forge/Vite and first Linux packaging evaluation | `Accepted` | [0001-build-baseline](../decisions/0001-build-baseline.md) | WI-001 (closed) | — |
 | `gate-runtime-host` | pi runtime in Electron Main vs utility/child process | `Open` | — | WI-003 (queued) | Start WI-003 spike after toolchain baseline ADR |
 | `gate-sub-agent` | Sub-agent integration for pinned pi version | `Open` | — | — | Spike per PRD/architecture before sub-agent features |
 | `gate-project-trust-worktree` | Project trust public API mapping for internal worktrees | `Open` | — | — | ADR when trust/worktree flow is decided |

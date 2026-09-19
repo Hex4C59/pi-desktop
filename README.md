@@ -6,7 +6,7 @@ A Linux desktop client for [pi](https://github.com/earendil-works/pi).
 
 The project aims to provide a graphical interface suited to everyday development work while preserving pi's core capabilities and extension system. Planned capabilities include streaming conversations, tool execution visibility, session management, model switching, and working-directory management.
 
-> Current status: the project is in its initialization phase. Only the project documentation and development constraints exist; there is no runnable application, installable package, or release yet.
+> Current status: initialization phase. A WI-001 Electron Forge + Vite scaffold exists (`npm run dev` / `npm run package`); product features and a release are not shipped yet.
 
 ## Goals
 
@@ -105,21 +105,24 @@ The sibling `../pi` checkout is for reading, debugging, and compatibility verifi
 
 ## Development
 
-The repository does not have an application scaffold yet, so there are currently no valid install, development, packaging, or full CI check commands. Documentation bilingual invariants can be verified with:
+Prerequisites:
+
+- Linux (target platform for now)
+- Node.js `>= 22.19.0` (host tooling; packaged app uses Electron’s built-in Node)
+- npm
 
 ```bash
-npm run docs:verify
+npm install
+npm run dev          # Electron Forge + Vite dev server, empty shell window
+npm run package      # production bundle under out/ (WI-001 spike)
+npm run check        # Prettier + ESLint + TypeScript (strict)
+npm test             # unit + documentation tests
+npm run docs:verify  # documentation structure + bilingual invariants
 ```
 
-(`docs:verify` runs structural documentation checks and `docs:i18n:check`.)
+Mechanical style enforcement: **ESLint + Prettier** (`npm run check`). Judgment calls remain in [code-style.md](docs/guides/code-style.md).
 
-After the desktop stack is introduced, this section must remain synchronized with `package.json` and the commands used by CI.
-
-Known pi SDK prerequisites:
-
-- Linux
-- Node.js `>= 22.19.0`
-- npm or the package manager selected later by the project
+Packaged builds log Electron’s `process.versions.node` and run a minimal in-memory pi SDK probe in the main process (no real model calls).
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md) before contributing. Tests must not call real paid models; agent behavior should be verified with fake providers, fixtures, or controlled local substitutes.
 

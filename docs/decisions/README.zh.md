@@ -30,7 +30,7 @@ Gate 状态（Open / In spike / Accepted）以 [architecture-gates.zh.md](../ref
 
 | 编号 | 标题 | 关闭的 gate | 文件 |
 |------|------|-------------|------|
-| — | *（尚无）* | — | — |
+| 0001 | 构建与打包基线 | `gate-build-baseline` | [0001-build-baseline.zh.md](0001-build-baseline.zh.md) |
 
 ## Pending ADR
 
@@ -46,7 +46,6 @@ Gate 状态（Open / In spike / Accepted）以 [architecture-gates.zh.md](../ref
 
 | 计划编号 | Gate | ACTIVE | 何时创建文件 |
 |----------|------|--------|----------------|
-| `0001-build-baseline` | `gate-build-baseline` | WI-001 | WI-001 spike 验收通过且维护者确认基线（如 Forge + Vite 方案 A）后 |
 | `0002-runtime-host` | `gate-runtime-host` | WI-003（排队） | runtime-host spike 与维护者确认后 |
 | *（待定）* | 其余 5 个 gate | — | 各 gate 须各自 Accepted ADR 关闭 |
 

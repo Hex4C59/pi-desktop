@@ -3,3 +3,5 @@
 
 # Dependencies and build artifacts (when application scaffold exists)
 node_modules/
+.vite/
+out/

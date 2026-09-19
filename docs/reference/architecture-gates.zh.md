@@ -38,7 +38,7 @@
 
 | ID | 主题 | 状态 | ADR | ACTIVE | 下一步 |
 |----|------|------|-----|--------|--------|
-| `gate-build-baseline` | npm + Electron Forge/Vite 与首批 Linux 打包评估 | `In spike` | — | [WI-001](../../ACTIVE.md) | 维护者确认 spike → 起草 `0001-build-baseline.md` → 本表标 `Accepted` |
+| `gate-build-baseline` | npm + Electron Forge/Vite 与首批 Linux 打包评估 | `Accepted` | [0001-build-baseline](../decisions/0001-build-baseline.zh.md) | WI-001（已关闭） | — |
 | `gate-runtime-host` | pi runtime 位于 Main 或 utility/child process | `Open` | — | WI-003（排队） | 工具链 ADR 后启动 WI-003 spike |
 | `gate-sub-agent` | 固定 pi 版本的子 Agent 集成 | `Open` | — | — | 子 Agent 功能前须 spike |
 | `gate-project-trust-worktree` | 内部 worktree 的项目 trust 公共 API 映射 | `Open` | — | — | 流程定案时写 ADR |

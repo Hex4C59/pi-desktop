@@ -25,27 +25,34 @@ English operational note: Living session state for humans and coding agents. Not
 
 | 字段 | 内容 |
 |------|------|
-| **ID** | WI-001 |
-| **标题** | 工具链与打包 spike（Electron Forge + Vite + TypeScript） |
-| **阶段** | 准备（讨论稿待确认；未开始写脚手架代码） |
-| **PRD / 架构** | 架构 §21 打包约束、`docs/README` 架构 gate「npm + Electron Forge/Vite」 |
-| **Gate ID** | `gate-build-baseline` |
-| **Decision** | `none`（spike 完成且你确认基线后 → `pending-adr` 或 `0001-…`） |
-| **决策类（提案用）** | `adr-after-approval` — 见 `docs/decisions/README.md#when-to-write-an-adr` |
+| **ID** | WI-002 |
+| **标题** | IPC 安全壳（preload allowlist、host 校验、Renderer 无 Node） |
+| **阶段** | 准备（讨论稿待确认；未开始业务 IPC 实现） |
+| **PRD / 架构** | 架构 §18 IPC、[`ipc-channels`](docs/reference/ipc-channels.md)（Living） |
+| **Gate ID** | — |
+| **Decision** | `none` |
+| **决策类（提案用）** | `none`（契约与 allowlist 以 reference 为准；大改安全边界再标 `adr-after-approval`） |
 
-**一句目标**：在 Linux 上能 `dev` 起空窗、`build` 产出可启动包，主进程能加载 pinned 的 `@earendil-works/pi-coding-agent` 并做最小 runtime 探测（不调真实模型），且能干净退出。
+**一句目标**：建立可审计的 preload/IPC 边界：Renderer 仅见窄 API；Main 对 allowlist 通道校验输入；无通用「执行宿主代码」面。
 
 ---
 
 ## 今天 / 当前焦点
 
-- [ ] 产品负责人确认 WI-001 讨论稿（回复「可以」后进入「建造」）
-- [ ] （建造阶段再填）实现与自动检查
-- [ ] （建造阶段再填）手动验收
+- [x] WI-001 维护者验收通过；`gate-build-baseline` → Accepted（[ADR 0001](docs/decisions/0001-build-baseline.md)）
+- [ ] 起草 WI-002 讨论稿要点并维护者确认后进入「建造」
+- [ ] （建造阶段再填）IPC 壳实现与测试
 
 ---
 
-## WI-001 讨论稿（待拍板）
+## WI-001（已关闭）
+
+- **Gate**：`gate-build-baseline` → **Accepted** — [0001-build-baseline](docs/decisions/0001-build-baseline.md)
+- **验收**：维护者 2026-09-19 确认通过（`dev` / `package` / pi SDK spike 日志）
+
+---
+
+## WI-001 讨论稿（归档）
 
 ### 目标
 
@@ -86,8 +93,8 @@ Gate 状态见 [`docs/reference/architecture-gates.md`](docs/reference/architect
 
 ## 排队（从上到下）
 
-1. **WI-001** — 工具链与打包 spike（当前）
-2. **WI-002** — IPC 安全壳（preload allowlist、host 校验、Renderer 无 Node）；契约：[`ipc-channels`](docs/reference/ipc-channels.md) → `Living`
+1. **WI-002** — IPC 安全壳（当前）
+2. ~~WI-001~~ — 工具链与打包 spike（已关闭，ADR 0001）
 3. **WI-003** — Runtime 进程模型 spike → ADR（Main vs utility/child）
 4. **WI-004** — 单任务假 provider 流式闭环（发消息 → 流式 → abort）
 5. **WI-005** — 打开本地项目 + project trust 最小路径
@@ -107,6 +114,6 @@ Gate 状态见 [`docs/reference/architecture-gates.md`](docs/reference/architect
 | 字段 | 内容 |
 |------|------|
 | **日期** | 2026-09-19 |
-| **做了什么** | 新会话只 @ ACTIVE；会话配对写入 `AGENTS.md`（无 `.cursor`）；保留顶部 **Agent 会话契约** 摘要。 |
-| **如何验收** | 只 @ `ACTIVE.md` +「继续 pi-desktop」；agent 应复述 WI 并读 `agent-collaboration`（`AGENTS.md` 已约束）。 |
-| **下一会话建议** | 回复「可以」启动 WI-001 建造。 |
+| **做了什么** | 维护者验收 WI-001；新增 Accepted ADR [0001-build-baseline](docs/decisions/0001-build-baseline.md)；更新 architecture-gates；ACTIVE 切换至 WI-002。 |
+| **如何验收** | `npm run docs:verify`；查阅 gates 表 `gate-build-baseline` = Accepted。 |
+| **下一会话建议** | @ ACTIVE 推进 WI-002：先出 IPC 安全壳讨论稿，维护者「可以」后建造。 |

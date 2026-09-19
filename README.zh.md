@@ -11,7 +11,7 @@
 
 本项目希望在保留 pi 核心能力和扩展机制的前提下，提供适合日常开发工作的图形界面，包括流式对话、工具执行过程、会话管理、模型切换以及工作目录管理。
 
-> 当前状态：项目处于初始化阶段，仅建立了项目说明与开发约束，尚无可运行的应用、安装包或发布版本。
+> 当前状态：初始化阶段。已有 WI-001 的 Electron Forge + Vite 脚手架（`npm run dev` / `npm run package`）；产品功能与正式发布尚未交付。
 
 ## 项目目标
 
@@ -110,21 +110,24 @@ git clone https://github.com/earendil-works/pi.git ../pi
 
 ## 开发
 
-当前仓库尚未创建应用脚手架，因此暂时没有有效的安装、启动、打包或完整 CI 检查命令。双语文档约束可用以下命令验证：
+前提：
+
+- Linux（当前目标平台）
+- Node.js `>= 22.19.0`（本机工具链；打包后应用使用 Electron 内置 Node）
+- npm
 
 ```bash
-npm run docs:verify
+npm install
+npm run dev          # Electron Forge + Vite dev server, empty shell window
+npm run package      # production bundle under out/ (WI-001 spike)
+npm run check        # Prettier + ESLint + TypeScript (strict)
+npm test             # unit + documentation tests
+npm run docs:verify  # documentation structure + bilingual invariants
 ```
 
-（`docs:verify` 会运行文档结构检查并包含 `docs:i18n:check`。）
+机械风格检查：**ESLint + Prettier**（`npm run check`）。需人工判断的约定见 [code-style.zh.md](docs/guides/code-style.zh.md)。
 
-引入桌面技术栈后，本节必须与 `package.json` 和实际 CI 命令同步更新。
-
-已知的 pi SDK 运行前提：
-
-- Linux
-- Node.js `>= 22.19.0`
-- npm 或项目后续选定的包管理器
+打包启动时，主进程日志会输出 Electron 的 `process.versions.node`，并执行最小 pi SDK 内存会话探测（不调用真实模型）。
 
 开始贡献前请阅读 [CONTRIBUTING.zh.md](CONTRIBUTING.zh.md)（[English](CONTRIBUTING.md)）与 [AGENTS.zh.md](AGENTS.zh.md)（[English](AGENTS.md)）。不要在测试中调用真实付费模型；agent 流程应使用 fake provider、fixture 或受控的本地替身验证。
 

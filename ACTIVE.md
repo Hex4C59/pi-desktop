@@ -25,23 +25,97 @@ English operational note: Living session state for humans and coding agents. Not
 
 | 字段 | 内容 |
 |------|------|
-| **ID** | WI-002 |
-| **标题** | IPC 安全壳（preload allowlist、host 校验、Renderer 无 Node） |
-| **阶段** | 准备（讨论稿待确认；未开始业务 IPC 实现） |
-| **PRD / 架构** | 架构 §18 IPC、[`ipc-channels`](docs/reference/ipc-channels.md)（Living） |
-| **Gate ID** | — |
+| **ID** | WI-003 |
+| **标题** | Runtime 进程模型 spike → ADR（Main vs utility/child） |
+| **阶段** | 准备（讨论稿待确认） |
+| **PRD / 架构** | 架构 runtime 宿主、`gate-runtime-host`、[`architecture-gates`](docs/reference/architecture-gates.md) |
+| **Gate ID** | `gate-runtime-host` |
 | **Decision** | `none` |
-| **决策类（提案用）** | `none`（契约与 allowlist 以 reference 为准；大改安全边界再标 `adr-after-approval`） |
+| **决策类（提案用）** | `adr-after-approval` |
 
-**一句目标**：建立可审计的 preload/IPC 边界：Renderer 仅见窄 API；Main 对 allowlist 通道校验输入；无通用「执行宿主代码」面。
+**一句目标**：用 spike 验证 pi runtime 应驻留 Electron Main 还是 utility/child，并产出 Accepted ADR `0002-runtime-host`。
 
 ---
 
 ## 今天 / 当前焦点
 
 - [x] WI-001 维护者验收通过；`gate-build-baseline` → Accepted（[ADR 0001](docs/decisions/0001-build-baseline.md)）
-- [ ] 起草 WI-002 讨论稿要点并维护者确认后进入「建造」
-- [ ] （建造阶段再填）IPC 壳实现与测试
+- [x] WI-002 讨论稿；维护者「可以」
+- [x] WI-002 维护者验收通过（2026-09-19）
+- [ ] WI-003 讨论稿与维护者确认
+
+---
+
+## WI-002（已关闭）
+
+- **契约**：[`ipc-channels`](docs/reference/ipc-channels.md) → **Outline**（壳层 `app:getVersions`、`app:ping`）
+- **验收**：维护者 2026-09-19 确认通过（`dev` / 版本 + ping）
+
+---
+
+## WI-002 讨论稿（归档；已确认 2026-09-19）
+
+### 目标
+
+在 WI-001 脚手架之上落地 **Phase 1「Secure shell」** 的 IPC 骨架（见架构 §23 Phase 1）：固定 allowlist、Main 侧运行时校验、Preload 窄 API、可测试的拒绝路径。**不**交付 pi 会话、任务、凭证或文件能力。
+
+满足架构 §18.2：无动态通道、无通用 `invoke(channel, payload)` 透传、错误面向用户可理解且不泄露密钥/栈为主 UI 文案。
+
+### 方案（默认 A）
+
+| | 方案 A（推荐） | 方案 B |
+|---|----------------|--------|
+| **内容** | **`ipcMain.handle` + `invoke`**；通道名固定字符串常量；payload/result 在 `src/shared/contracts/`；Main 用 **TypeBox**（或同类 JSON schema）校验 `unknown` 入参 | Preload 内封装 `invoke`，但 Renderer 仍拿到字符串通道名自行组合 |
+| **优点** | 与架构、[`ipc-registration`](docs/modules/ipc-registration.md) 一致；契约表可逐行对照 | 实现略快 |
+| **缺点** | 需同步维护契约表与注册表 | Renderer 易扩散通道字符串，审计差 |
+| **建议** | **WI-002 用 A**；Preload 只暴露 `window.piDesktop.*` 方法，内部映射到固定 `invoke` |
+
+**Preload 与同步 API**：WI-001 在 preload 直接读 `process.versions`。WI-002 **改为** 版本信息经 **`app:getVersions` invoke** 由 Main 返回（单一模式）；移除 Renderer 对 Node 能力的任何暴露。Preload 仅 `contextBridge` + 类型声明（`src/preload/` + 可选 `src/shared/contracts/preload-api.ts`）。
+
+**注册与生命周期**：`src/main/ipc/` 提供 `registerIpcHandlers()`（或等价模块），在 `app.whenReady` 窗口创建前调用一次；`window-all-closed` / `before-quit` 时注销 handler（避免重复注册）。未知通道在 Main **不注册**即无法调用。
+
+### 首批通道（仅壳层，WI-002）
+
+| Channel | 方向 | Preload API | 说明 |
+|---------|------|-------------|------|
+| `app:getVersions` | Renderer → Main | `piDesktop.getVersions()` | 返回 `{ node, electron, chrome }`（来自 Main `process.versions`，非 Renderer 直读） |
+| `app:ping` | Renderer → Main | `piDesktop.ping()` | 固定 `{}` 入参；返回 `{ ok: true }`，用于连通性与测试 |
+
+- **错误模型（首版）**：校验失败 / 未知内部错误 → 结构化 reject（如 `{ code: 'INVALID_INPUT' \| 'INTERNAL', message: string }`），无堆栈进 Renderer。
+- **事件推送**：WI-002 **不做** `webContents.send` 订阅流；留待 WI-004+，仅在契约页注明「后续 channel 行」。
+
+建造时同步更新 [`ipc-channels.md`](docs/reference/ipc-channels.md)（+ `.zh.md`）：Status **Planned → Outline**，填入上表行；实现完成后若稳定可升为 **Living**（本 WI 至少达到 Outline + 代码一致）。
+
+### 代码布局（建造时）
+
+```text
+src/main/ipc/           # 注册、校验、handler 实现
+src/preload/            # contextBridge 窄 API（已有目录，扩展）
+src/shared/contracts/   # 通道名常量、TypeBox schema、结果/错误类型
+```
+
+- Renderer **禁止** `import` electron / Node / pi SDK（靠 ESLint `import/no-restricted-paths` 或等价规则在本 WI 引入）。
+- Main **禁止** 未在注册表登记的 `ipcMain.handle`。
+
+### 验收（4 条）
+
+1. **开发**：`npm run dev` 启动；Renderer 调用 `getVersions` / `ping` 成功（可在空壳 UI 显示版本或仅 devtools 验证）。
+2. **边界**：单元或集成测试证明：**畸形 payload** 被拒绝；**未注册通道名** 若被强行 `invoke` 则失败（测试可在 Main 侧或 `@electron/remote` 禁止的前提下用 preload 契约测试 / 主进程测试 harness）。
+3. **生产**：`npm run package` 后启动，壳层 IPC 仍可用；`npm run check` 与 `npm test` 通过。
+4. **文档**：`ipc-channels` 与实现一致；[`ipc-registration`](docs/modules/ipc-registration.md) stub 中「TBD 通道」改为指向契约表（不必写满未来业务通道）。
+
+### 明确不在 WI-002
+
+- pi 会话、prompt、流式事件、abort、模型列表、project open、project trust、worktree
+- 凭证一次性 IPC（`credentials:*`）、附件、扩展 UI 请求
+- `RequestScopeRegistry` 完整取消语义（可留接口占位，不声称已交付）
+- 将 `ipc-channels` 标为 **Living** 并登记业务通道（留给后续 WI）
+- 关闭 `gate-runtime-host`（WI-003）
+
+### 建造前检查（Agent）
+
+- 读 [security](docs/guides/agent/security.md)、[boundaries](docs/guides/agent/boundaries.md)、[typescript](docs/guides/agent/typescript.md)
+- 维护者确认讨论稿（「可以」）后进入建造；**决策类** `none`（无新 ADR，除非你要求改安全模型并单独批准）
 
 ---
 
@@ -93,9 +167,9 @@ Gate 状态见 [`docs/reference/architecture-gates.md`](docs/reference/architect
 
 ## 排队（从上到下）
 
-1. **WI-002** — IPC 安全壳（当前）
-2. ~~WI-001~~ — 工具链与打包 spike（已关闭，ADR 0001）
-3. **WI-003** — Runtime 进程模型 spike → ADR（Main vs utility/child）
+1. **WI-003** — Runtime 进程模型 spike → ADR（当前）
+2. ~~WI-002~~ — IPC 安全壳（已关闭）
+3. ~~WI-001~~ — 工具链与打包 spike（已关闭，ADR 0001）
 4. **WI-004** — 单任务假 provider 流式闭环（发消息 → 流式 → abort）
 5. **WI-005** — 打开本地项目 + project trust 最小路径
 
@@ -114,6 +188,6 @@ Gate 状态见 [`docs/reference/architecture-gates.md`](docs/reference/architect
 | 字段 | 内容 |
 |------|------|
 | **日期** | 2026-09-19 |
-| **做了什么** | 维护者验收 WI-001；新增 Accepted ADR [0001-build-baseline](docs/decisions/0001-build-baseline.md)；更新 architecture-gates；ACTIVE 切换至 WI-002。 |
-| **如何验收** | `npm run docs:verify`；查阅 gates 表 `gate-build-baseline` = Accepted。 |
-| **下一会话建议** | @ ACTIVE 推进 WI-002：先出 IPC 安全壳讨论稿，维护者「可以」后建造。 |
+| **做了什么** | WI-002 验收通过；git 提交 IPC 安全壳；ACTIVE 切换至 WI-003。 |
+| **如何验收** | `npm run check && npm test`；`ipc-channels` Outline 与代码一致。 |
+| **下一会话建议** | 起草 WI-003 讨论稿（runtime 宿主 spike）。 |

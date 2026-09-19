@@ -127,8 +127,15 @@ export function runDocsVerify() {
     if (row.status === 'Accepted') {
       if (!row.adrPath || row.adrCell === '—' || row.adrCell.includes('—')) {
         push('error', 'gate-accepted-no-adr', `${row.id}: status Accepted but ADR column is empty`);
-      } else if (!fileExists(row.adrPath)) {
-        push('error', 'gate-adr-missing', `${row.id}: ADR link missing on disk: ${row.adrPath}`);
+      } else {
+        const resolved = resolveLink(GATES_EN, row.adrPath);
+        if (!resolved || !fileExists(resolved)) {
+          push(
+            'error',
+            'gate-adr-missing',
+            `${row.id}: ADR link missing on disk: ${row.adrPath}${resolved ? ` (resolved ${resolved})` : ''}`,
+          );
+        }
       }
     }
     if (row.adrPath && row.status !== 'Accepted') {
@@ -147,9 +154,16 @@ export function runDocsVerify() {
   const indexedFiles = new Set();
   for (const row of accepted) {
     if (row.file) {
-      indexedFiles.add(row.file);
-      if (!fileExists(row.file)) {
-        push('error', 'adr-index-missing-file', `decisions/README lists ${row.id} → ${row.file} but file is missing`);
+      const resolved = resolveLink(DECISIONS_INDEX_EN, row.file);
+      if (resolved) {
+        indexedFiles.add(resolved);
+      }
+      if (!resolved || !fileExists(resolved)) {
+        push(
+          'error',
+          'adr-index-missing-file',
+          `decisions/README lists ${row.id} → ${row.file} but file is missing`,
+        );
       }
     }
   }

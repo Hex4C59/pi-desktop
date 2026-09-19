@@ -40,7 +40,7 @@ English | [中文](ipc-registration.zh.md)
 
 ## Interfaces
 
-TBD — define channel list and schemas in **WI-002** (IPC secure shell). Do not invent channel names in this stub.
+Shell channels (WI-002): see [ipc-channels contract](../reference/ipc-channels.md) and `src/main/ipc/register-ipc-handlers.ts`. Business channels remain TBD.
 
 ## Open questions
 

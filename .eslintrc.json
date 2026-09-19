@@ -35,5 +35,33 @@
       "version": "detect"
     }
   },
-  "ignorePatterns": [".vite/", "out/", "node_modules/"]
+  "ignorePatterns": [".vite/", "out/", "node_modules/"],
+  "overrides": [
+    {
+      "files": ["src/renderer/**/*.{ts,tsx}"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "electron",
+                "message": "Renderer must use window.piDesktop preload API only."
+              },
+              {
+                "name": "@earendil-works/pi-coding-agent",
+                "message": "Renderer must not import the pi SDK."
+              }
+            ],
+            "patterns": [
+              {
+                "group": ["node:*"],
+                "message": "Renderer must not import Node built-ins."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }

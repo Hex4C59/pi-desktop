@@ -1,9 +1,10 @@
-import { contextBridge } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
+import { IPC_CHANNELS } from '../shared/contracts/ipc-channels';
+import type { PiDesktopApi } from '../shared/contracts/preload-api';
 
-contextBridge.exposeInMainWorld('piDesktop', {
-  versions: {
-    node: process.versions.node,
-    electron: process.versions.electron,
-    chrome: process.versions.chrome,
-  },
-});
+const piDesktop: PiDesktopApi = {
+  getVersions: () => ipcRenderer.invoke(IPC_CHANNELS.APP_GET_VERSIONS),
+  ping: () => ipcRenderer.invoke(IPC_CHANNELS.APP_PING, {}),
+};
+
+contextBridge.exposeInMainWorld('piDesktop', piDesktop);

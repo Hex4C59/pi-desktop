@@ -29,7 +29,7 @@
 
 | Contract ID | 文件 | 状态 | 何时填入 | Gate / WI | 模块 owner |
 |-------------|------|------|----------|-----------|------------|
-| `contract-ipc` | [ipc-channels.zh.md](ipc-channels.zh.md) | `Planned` | 首个 allowlist channel 落地 | WI-002 | [ipc-registration](../modules/ipc-registration.zh.md) |
+| `contract-ipc` | [ipc-channels.zh.md](ipc-channels.zh.md) | `Outline` | 壳层 channel（WI-002）；业务 IPC 稳定后可升 Living | WI-002 | [ipc-registration](../modules/ipc-registration.zh.md) |
 | `contract-events` | [domain-events.zh.md](domain-events.zh.md) | `Planned` | 单任务流式切片 | WI-004（排队） | Adapter / `TaskEventStream`（见 [modules](../modules/README.zh.md)） |
 | `contract-states` | [task-and-runtime-states.zh.md](task-and-runtime-states.zh.md) | `Planned` | 与 domain events 同期或略早 | WI-004（排队） | `TaskRuntimeController`、Renderer |
 | `contract-persistence` | [persistence-layout.zh.md](persistence-layout.zh.md) | `Planned` | 持久化 ADR 之后 | `gate-task-persistence`、apply journal gate | `TaskRegistry`、持久化适配器 |

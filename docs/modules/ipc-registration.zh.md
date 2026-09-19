@@ -41,7 +41,7 @@
 
 ## 接口
 
-TBD — channel 列表与 schema 在 **WI-002** 定义。本 stub 不发明 channel 名。
+壳层 channel（WI-002）：见 [ipc-channels 契约](../reference/ipc-channels.zh.md) 与 `src/main/ipc/register-ipc-handlers.ts`。业务 channel 仍 TBD。
 
 ## 未决
 

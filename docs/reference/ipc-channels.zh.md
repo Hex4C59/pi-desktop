@@ -3,7 +3,7 @@
 [English](ipc-channels.md) | 中文
 
 - 类型：Reference
-- 状态：Planned
+- 状态：Outline
 - 创建：2026-09-19
 - 上次评审：2026-09-19
 - Contract ID：`contract-ipc`
@@ -15,7 +15,7 @@
 - 原文版本：`Uncommitted baseline`
 - 最近同步：2026-09-19
 
-> **状态：Planned** — 勿仅依本页实现。**WI-002** 起与 host/preload 代码同变更填表。
+> **状态：Outline** — 下表壳层通道已在 WI-002 实现。业务通道须先增行并注册后再用。
 
 ## 目的
 
@@ -30,8 +30,13 @@ invoke/subscribe（或等价）channel、preload 暴露、宿主 handler、paylo
 
 | Channel | 方向 | Preload API | Host handler | Payload schema | 错误 | 备注 |
 |---------|------|-------------|--------------|----------------|------|------|
-| *（尚无）* | — | — | — | — | — | WI-002 起增行 |
+| `app:getVersions` | Renderer → Main（invoke） | `piDesktop.getVersions()` | `readAppVersions`（`src/main/ipc/app-handlers.ts`） | 无 | `INTERNAL` | 由 Main `process.versions` 返回 `{ node, electron, chrome }` |
+| `app:ping` | Renderer → Main（invoke） | `piDesktop.ping()` | `handleAppPing` | `AppPingRequestSchema`（`src/shared/contracts/app-ipc.ts`） | `INVALID_INPUT`、`INTERNAL` | 健康检查；仅 `{}` |
+
+## 错误封装（invoke）
+
+宿主以 `IpcCallError` 拒绝（`code`：`INVALID_INPUT` \| `INTERNAL`，`message` 为用户可读文案）。不以堆栈作为 Renderer 主文案。
 
 ## 维护
 
-升为 `Living` 后，每个新 channel 须在本表增行、在 `IpcRegistration` 注册、在 `src/shared/contracts` 有 schema，并按 [testing playbook](../guides/agent/testing.zh.md) 加测。
+本页升为 **Living** 后，每新增 channel 须同步本表、`registerIpcHandlers` 注册、`src/shared/contracts` schema，并按 [testing playbook](../guides/agent/testing.zh.md) 补测试。

@@ -25,7 +25,7 @@ These files record **what the code must match** (IPC allowlist, DTOs, states, on
 
 | Contract ID | File | Status | Fill when | Gate / WI | Module owner |
 |-------------|------|--------|-----------|-----------|--------------|
-| `contract-ipc` | [ipc-channels.md](ipc-channels.md) | `Planned` | First allowlisted channels land | WI-002 | [ipc-registration](../modules/ipc-registration.md) |
+| `contract-ipc` | [ipc-channels.md](ipc-channels.md) | `Outline` | Shell channels (WI-002); Living when business IPC stabilizes | WI-002 | [ipc-registration](../modules/ipc-registration.md) |
 | `contract-events` | [domain-events.md](domain-events.md) | `Planned` | Single-task streaming slice | WI-004 (queued) | Adapter / `TaskEventStream` (see [modules](../modules/README.md)) |
 | `contract-states` | [task-and-runtime-states.md](task-and-runtime-states.md) | `Planned` | With or just before domain events | WI-004 (queued) | `TaskRuntimeController`, Renderer |
 | `contract-persistence` | [persistence-layout.md](persistence-layout.md) | `Planned` | After persistence ADR | `gate-task-persistence`, apply journal gate | `TaskRegistry`, persistence adapter |

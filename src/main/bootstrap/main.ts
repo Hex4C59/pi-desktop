@@ -4,6 +4,7 @@ import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { runPiSpikeProbe } from '../pi/spike-probe';
 import { checkElectronNodeVersion } from '../platform/node-version';
+import { registerIpcHandlers, unregisterIpcHandlers } from '../ipc/register-ipc-handlers';
 import { createMainWindow } from '../window/create-main-window';
 
 if (started) {
@@ -36,6 +37,7 @@ app.whenReady().then(async () => {
     return;
   }
 
+  registerIpcHandlers();
   createMainWindow();
 
   app.on('activate', () => {
@@ -49,4 +51,8 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+app.on('will-quit', () => {
+  unregisterIpcHandlers();
 });
